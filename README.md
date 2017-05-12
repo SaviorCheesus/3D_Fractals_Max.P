@@ -7,6 +7,8 @@ Fractals. But in 3D.
 The goal of this relatively simple project is to and adapt some of my prior 
 knowledge learned in the past few months, and apply them in a project. 
 I wanted to do something 3D, as I had not used it all too much.
+The idea to use fractals cam from some previous messing around I did with fractals,
+and I wanted to add another layer to that.
 <p>
 
 <h2> MileStone 1 : May 12th </h2>
