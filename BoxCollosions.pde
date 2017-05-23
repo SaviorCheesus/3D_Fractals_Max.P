@@ -22,10 +22,11 @@ class Box
   {
     fill(_colour);
     
-    
+    //oscilate();
+    pushMatrix();
     translate(_x, _y, _z);
     box(_depth, _vertical, _horizontal);
-    translate(-_x, -_y, -_z);
+    popMatrix();
     
     Collisions();
   }
@@ -67,5 +68,12 @@ class Box
       acceleration.y = acceleration.y * 0;
       velocity.y = -1;
     }
+  }
+  
+  void oscilate()
+  {
+    _x += random(-1,1);
+    _y += random(-1,1);
+    _z += random(-1,1);
   }
 }
