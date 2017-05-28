@@ -1,24 +1,32 @@
+import peasy.*;
+import peasy.org.apache.commons.math.*;
+import peasy.org.apache.commons.math.geometry.*;
 import queasycam.*;  
 
-ArrayList<Box> boxes = new ArrayList<Box>();
-color c[] = new color[4];
 
-float FOV;
+ArrayList<Box> boxes = new ArrayList<Box>();
+ArrayList<Points> points = new ArrayList<Points>();
+color c[] = new color[5];
+
+float FOV, grav = 2.8;
+int score = 0;
 PVector acceleration, velocity, position;
+boolean grounded = false;
 
 QueasyCam cam;
 
 void setup()
 {
-  c[0] = color(255, 34, 0);
-  c[1] = color(255, 0, 98);
+  c[0] = color(54);
+  c[1] = color(103);
   c[2] = color(0);
-  c[2] = color(185, 67, 113);
-  c[3] = color(142,  53, 79);
+  c[2] = color(84);
+  c[3] = color(252, 200, 8);
+  c[4] = color(216,  18, 0 );
   
-  acceleration = new PVector(0, 0.1, 0);
-  velocity = new PVector(1,1,1);
-  position = new PVector(1,1,1);
+  acceleration = new PVector(0, 0, 0);
+  velocity = new PVector(0,0,0);
+  position = new PVector(550,1,1);
     
   fullScreen(P3D);
   noCursor();
@@ -30,10 +38,9 @@ void setup()
   cam.speed = 3;
   cam.sensitivity = 1;
   perspective(FOV/3, (float)width/height, 0.01, 10000);  
+  cam.velocity.mult(0);;
   
-  boxes.add(new Box(0, -10000, 0, 100, 10, 100, color(0,0,0,0)));
- 
- 
+  cam.position.x = position.x;;
   //cantorSet(1,1,1,1000, 100);
   //tree(1,1,1,100);
   mengerSponge(1,1,1,1000);
@@ -41,30 +48,67 @@ void setup()
 
 void draw()
 {
-  background(255,205,0);
+  background(0);
   
-  view();
+  var();
+  world();
   physics();
-  
+}
+
+void world()
+{
   for (int i = 0; i < boxes.size(); i++)
   {
-    Box object = boxes.get(i);
+    Box object = boxes.get(i);  
+    object.display();
     
-    object.Display();
+    if(object._colide == true)
+    {
+      grounded = true;
+    }
   }
+  
+  fill(c[4]);
+  
+  for (int i = 0; i < points.size(); i++)
+  {
+    Points object = points.get(i);
+    object.display();
+    
+    if (dist(cam.position.x, cam.position.y, object._location.x, object._location.y) <100 &&
+        dist(cam.position.x, cam.position.z, object._location.x, object._location.z) <100)
+    {
+      score += 1;
+      points.remove(i);
+    }
+  }
+  println(score);
 }
 
 void physics()
 {
-  if(keyPressed == true && key == ' ')
+  if (grounded)
   {
-    acceleration.y = acceleration.y * 0;
-    velocity.y = velocity.y * 0;
-    acceleration.y = -10;
+    if(keyPressed == true && key == ' ')
+    {
+      acceleration.y = -15;
+      grounded = false;
+    }
+    else
+    {
+      acceleration.y = 1;
+    }
   }
   else
-  {
-    acceleration.y = 1;
+  {  
+    if(keyPressed == true && key == ' ')
+    {
+      acceleration.y = 0.4;
+    }
+    else
+    {
+      acceleration.y = 1;
+    }
   }
    
   velocity.add(acceleration);
@@ -74,7 +118,7 @@ void physics()
 
 void fractal1(float baseX, float baseY, float baseZ, float size)
 {
-  boxes.add(new Box(baseX, baseY, baseZ, size, size, size, c[int(random(-1,4))]));
+  boxes.add(new Box(baseX, baseY, baseZ, size, size, size, c[int(random(-1,4))], true));
   
   size /= 2;
   
@@ -109,7 +153,7 @@ void fractal1(float baseX, float baseY, float baseZ, float size)
 
 void fractal2(float baseX, float baseY, float baseZ, float size)
 {
-  boxes.add(new Box(baseX, baseY, baseZ, size, size, size, c[int(random(-1,4))]));
+  boxes.add(new Box(baseX, baseY, baseZ, size, size, size, c[int(random(-1,4))], true));
   
   size /= 2;
   
@@ -137,10 +181,10 @@ void fractal3(float baseX, float baseY, float baseZ, float stanSize, float varSi
 {   
   color p = c[int(random(-1,4))];
   
-  boxes.add(new Box(baseX, baseY, baseZ +varSize*10, varSize*20, stanSize*4, stanSize, p));
-  boxes.add(new Box(baseX, baseY, baseZ -varSize*10, varSize*20, stanSize*4, stanSize, p));
-  boxes.add(new Box(baseX +varSize*10, baseY, baseZ, stanSize, stanSize*4, varSize*20, p));
-  boxes.add(new Box(baseX -varSize*10, baseY, baseZ, stanSize, stanSize*4, varSize*20, p));
+  boxes.add(new Box(baseX, baseY, baseZ +varSize*10, varSize*20, stanSize*4, stanSize, p, true));
+  boxes.add(new Box(baseX, baseY, baseZ -varSize*10, varSize*20, stanSize*4, stanSize, p, true));
+  boxes.add(new Box(baseX +varSize*10, baseY, baseZ, stanSize, stanSize*4, varSize*20, p, true));
+  boxes.add(new Box(baseX -varSize*10, baseY, baseZ, stanSize, stanSize*4, varSize*20, p, true));
   
   varSize /= 1.1;
   
@@ -154,7 +198,7 @@ void cantorSet(float baseX, float baseY, float baseZ, float varSize, float stanS
 {
   color p = c[int(random(-1,4))];
   
-  boxes.add(new Box(baseX, -baseY, baseZ, varSize/10, varSize/10, varSize*2, p));
+  boxes.add(new Box(baseX, -baseY, baseZ, varSize/10, varSize/10, varSize*2, p, true));
   
   varSize /= 3;
   
@@ -169,11 +213,11 @@ void tree(float baseX, float baseY, float baseZ, float size)
 {
   color p = c[int(random(-1,4))];
   
-  boxes.add(new Box(baseX, baseY, baseZ, size, size*10, size, p));
-  boxes.add(new Box(baseX -size*4, baseY -size*6, baseZ, size*6, size, size, p));
-  boxes.add(new Box(baseX +size*4, baseY -size*6, baseZ, size*6, size, size, p));
-  boxes.add(new Box(baseX, baseY -size*6, baseZ -size*4, size, size, size*6, p));
-  boxes.add(new Box(baseX, baseY -size*6, baseZ +size*4, size, size, size*6, p));
+  boxes.add(new Box(baseX, baseY, baseZ, size, size*10, size, p, true));
+  boxes.add(new Box(baseX -size*4, baseY -size*6, baseZ, size*6, size, size, p, true));
+  boxes.add(new Box(baseX +size*4, baseY -size*6, baseZ, size*6, size, size, p, true));
+  boxes.add(new Box(baseX, baseY -size*6, baseZ -size*4, size, size, size*6, p, true));
+  boxes.add(new Box(baseX, baseY -size*6, baseZ +size*4, size, size, size*6, p, true));
   
   if(size > 50)
   {
@@ -187,8 +231,7 @@ void tree(float baseX, float baseY, float baseZ, float size)
 void mengerSponge(float baseX, float baseY, float baseZ, float size)
 {
   color p = c[int(random(-1,4))];
-  
-  
+   
   if (size < 300)
   {
     for(int x = -1; x < 2; x++)
@@ -204,7 +247,14 @@ void mengerSponge(float baseX, float baseY, float baseZ, float size)
            else
            {
              boxes.add(new Box(baseX +(size*x), baseY +(size*y), baseZ+(size*z),
-                             size, size, size, p));
+                             size, size, size, c[int(random(-1,4))], true));
+                             
+             int r = int(random(100));
+             
+             if (r > 75)
+             {
+             points.add(new Points(new PVector(baseX +(size*x), baseY -size*2, baseZ+(size*z))));
+             }
            }
         }
       }
@@ -247,15 +297,15 @@ void mengerSponge(float baseX, float baseY, float baseZ, float size)
   }
 }
 
-void view()
+void var()
 {
   if (keyPressed == true && key == 'w')
   {
-    if (FOV < 1.1*PI) FOV += 0.05;
+    if (FOV < 1.1*PI) FOV += 0.1;
   }
   else
   {
-    if (FOV > PI) FOV -= 0.05;
+    if (FOV > PI) FOV -= 0.1;
   }
 
   perspective(FOV/3, (float)width/height, 0.01, 10000);  
