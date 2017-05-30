@@ -1,8 +1,4 @@
-import peasy.*;
-import peasy.org.apache.commons.math.*;
-import peasy.org.apache.commons.math.geometry.*;
-import queasycam.*;  
-
+import queasycam.*;
 
 ArrayList<Box> boxes = new ArrayList<Box>();
 ArrayList<Points> points = new ArrayList<Points>();
@@ -17,13 +13,12 @@ QueasyCam cam;
 
 void setup()
 {
-  c[0] = color(54);
-  c[1] = color(103);
+  c[0] = color(211, 111, 111);
+  c[1] = color(203, 27, 27);
   c[2] = color(0);
-  c[2] = color(84);
-  c[3] = color(252, 200, 8);
-  c[4] = color(216,  18, 0 );
-  
+  c[2] = color(252, 200, 8);
+  c[3] = color(35, 203, 8);
+  c[4] = color(0, 108, 64);
   acceleration = new PVector(0, 0, 0);
   velocity = new PVector(0,0,0);
   position = new PVector(550,1,1);
@@ -31,10 +26,10 @@ void setup()
   fullScreen(P3D);
   noCursor();
   noStroke();
+  textSize(28);
   
   FOV = PI;
-  
-  cam = new QueasyCam(this);  
+  cam = new QueasyCam(this, 0.01f, 1415f);
   cam.speed = 3;
   cam.sensitivity = 1;
   perspective(FOV/3, (float)width/height, 0.01, 10000);  
@@ -48,11 +43,12 @@ void setup()
 
 void draw()
 {
-  background(0);
+  background(59, 23, 23);  
   
-  var();
+  //var();
   world();
   physics();
+  hud();
 }
 
 void world()
@@ -82,7 +78,12 @@ void world()
       points.remove(i);
     }
   }
-  println(score);
+  
+  
+  if (position.y > 2000)
+  {
+    exit();
+  }
 }
 
 void physics()
@@ -309,4 +310,15 @@ void var()
   }
 
   perspective(FOV/3, (float)width/height, 0.01, 10000);  
+}
+
+void hud()
+{
+  cam.beginHUD();
+  
+  fill(255);
+  translate(-width/2 +20, -height/2 +28,0);
+  text(score, width/2, height/2);
+ 
+  cam.endHUD();
 }
